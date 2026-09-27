@@ -44,5 +44,9 @@ class ApplicationTest {
         assertEquals(HttpStatusCode.OK, file.status)
         assertEquals("abc", file.bodyAsText())
         assertTrue(client.get("/").bodyAsText().startsWith("HomeEvenSmarter cartridge server"))
+
+        val tail = client.get("/cartridges/asr-test-cpu-arm64/artifacts/model/a.vmfb") { headers.append("Range", "bytes=1-") }
+        assertEquals(HttpStatusCode.PartialContent, tail.status)
+        assertEquals("bc", tail.bodyAsText())
     }
 }

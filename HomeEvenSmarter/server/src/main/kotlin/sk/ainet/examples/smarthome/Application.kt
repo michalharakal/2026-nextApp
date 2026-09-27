@@ -9,6 +9,7 @@ import io.ktor.server.engine.embeddedServer
 import io.ktor.server.http.content.staticFiles
 import io.ktor.server.netty.Netty
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.server.plugins.partialcontent.PartialContent
 import io.ktor.server.response.respond
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.get
@@ -36,6 +37,7 @@ fun main() {
 
 fun Application.module(catalog: CartridgeCatalog = CartridgeCatalog(File("build/cartridges"))) {
     install(ContentNegotiation) { json(CartridgeJson.json) }
+    install(PartialContent) // Range requests, so an interrupted 1.7 GB download resumes instead of restarting
     routing {
         get("/") {
             val index = catalog.scan()
