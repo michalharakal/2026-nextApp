@@ -1,9 +1,14 @@
 {
   "spec_version": "0.4",
   "kind": "materialization-profile",
-  "blueprint": { "id": "nlu-functiongemma-270m-iree", "version": "0.1.0" },
+  "blueprint": {
+    "id": "nlu-functiongemma-270m-iree",
+    "version": "0.1.0"
+  },
   "target": "vulkan-arm64",
-  "cartridge": { "version": "0.1.0" },
+  "cartridge": {
+    "version": "0.1.0"
+  },
   "license_acceptance": [
     {
       "source": "weights",
@@ -14,7 +19,19 @@
     }
   ],
   "inputs": {
-    "tool-catalog": { "path": "../catalogs/home-tools.v1.json", "license": "MIT" }
+    "tool-catalog": {
+      "path": "../catalogs/home-tools.v1.json",
+      "license": "MIT"
+    }
   },
-  "signing": { "keyid": "homeevensmarter-dev", "signer": "Michal Harakal", "key_ref": "CARTRIDGE_SIGNING_KEY" }
+  "measurements": {
+    "performance": {
+      "measured_on": "NOT YET MEASURED - provisional materialization for on-device measurement of this exact build on the demo phone; numbers follow once measured (see docs/DEMO.md)"
+    }
+  },
+  "signing": {
+    "keyid": "homeevensmarter-dev",
+    "signer": "Michal Harakal",
+    "key_ref": "CARTRIDGE_SIGNING_KEY"
+  }
 }

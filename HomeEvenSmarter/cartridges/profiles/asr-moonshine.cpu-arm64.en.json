@@ -1,9 +1,25 @@
 {
   "spec_version": "0.4",
   "kind": "materialization-profile",
-  "blueprint": { "id": "asr-moonshine-v2-streaming-iree", "version": "0.1.0" },
+  "blueprint": {
+    "id": "asr-moonshine-v2-streaming-iree",
+    "version": "0.1.0"
+  },
   "target": "cpu-arm64",
-  "flavors": ["en"],
-  "cartridge": { "version": "0.1.0" },
-  "signing": { "keyid": "homeevensmarter-dev", "signer": "Michal Harakal", "key_ref": "CARTRIDGE_SIGNING_KEY" }
+  "flavors": [
+    "en"
+  ],
+  "cartridge": {
+    "version": "0.1.0"
+  },
+  "measurements": {
+    "performance": {
+      "measured_on": "NOT YET MEASURED - provisional materialization for on-device measurement of this exact build on the demo phone; numbers follow once measured (see docs/DEMO.md)"
+    }
+  },
+  "signing": {
+    "keyid": "homeevensmarter-dev",
+    "signer": "Michal Harakal",
+    "key_ref": "CARTRIDGE_SIGNING_KEY"
+  }
 }
