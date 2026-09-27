@@ -36,7 +36,10 @@ materialize() { # <blueprint module> <profile path>
   for pack in "$BLUEPRINTS_DIR/blueprints/$module/build/cartridge"/*/; do
     [ -f "$pack/descriptor.json" ] || continue
     local id; id="$(basename "$pack")"
-    rm -rf "$OUT/$id"; cp -r "$pack" "$OUT/$id"
+    [ -n "$id" ] && [ -d "$OUT" ] || { echo "refusing to replace '$OUT/$id'"; exit 1; }
+    rm -rf -- "${OUT:?}/${id:?}"
+    # hard links when both live on one file system (the packs are gigabytes); a plain copy otherwise
+    cp -rl "$pack" "$OUT/$id" 2>/dev/null || cp -r "$pack" "$OUT/$id"
     echo "    -> $OUT/$id ($(du -sh "$OUT/$id" | cut -f1))"
   done
 }
