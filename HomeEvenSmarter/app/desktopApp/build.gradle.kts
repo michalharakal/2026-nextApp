@@ -6,11 +6,17 @@ plugins {
     alias(libs.plugins.composeCompiler)
 }
 
+kotlin {
+    jvmToolchain(21)
+}
+
 dependencies {
     implementation(project(":app:shared"))
+    implementation(project(":cartridges"))
 
     implementation(compose.desktop.currentOs)
     implementation(libs.kotlinx.coroutinesSwing)
+    implementation(libs.kotlinx.ioCore)
 
     implementation(libs.compose.uiToolingPreview)
 }

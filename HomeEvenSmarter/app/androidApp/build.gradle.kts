@@ -6,17 +6,22 @@ plugins {
 }
 
 kotlin {
-    compilerOptions {
-        jvmTarget = JvmTarget.JVM_11
-    }
+    compilerOptions { jvmTarget = JvmTarget.JVM_17 }
 }
+
 dependencies {
     implementation(project(":app:shared"))
+    implementation(project(":cartridges"))
 
     implementation(libs.androidx.activity.compose)
+    implementation(libs.kotlinx.ioCore)
 
     implementation(libs.compose.uiToolingPreview)
     debugImplementation(libs.compose.uiTooling)
+
+    androidTestImplementation(libs.androidx.test.runner)
+    androidTestImplementation(libs.androidx.test.rules)
+    androidTestImplementation(libs.androidx.testExt.junit)
 }
 
 android {
@@ -29,6 +34,9 @@ android {
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
         versionName = "1.0"
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        // The demo device is a 64-bit phone; the cartridges are materialized for arm64-v8a only.
+        ndk { abiFilters += "arm64-v8a" }
     }
     packaging {
         resources {
@@ -45,8 +53,8 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     buildFeatures {
         compose = true

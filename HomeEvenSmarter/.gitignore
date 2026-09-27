@@ -17,3 +17,9 @@ captures
 !*.xcworkspace/contents.xcworkspacedata
 **/xcshareddata/WorkspaceSettings.xcsettings
 node_modules/
+
+# Materialized cartridges, keys and the private word list of scripts/check-terms.sh never enter the repository.
+build/cartridges/
+*.pem
+*.key
+.check-terms.local
