@@ -1,54 +1,89 @@
-This is a Kotlin Multiplatform project targeting Android, iOS, Web, Desktop (JVM), Server.
+# HomeEvenSmarter
 
-* [/app/iosApp](./app/iosApp/iosApp) contains an iOS application. Even if you’re sharing your UI with Compose Multiplatform,
-  you need this entry point for your iOS app. This is also where you should add SwiftUI code for your project.
+A small smart-home app that listens. Say *"turn on the kitchen light"* and the light in the kitchen turns on —
+with **both models running on the phone**: Moonshine v2 streaming speech recognition and a FunctionGemma-270M
+language model that turns the sentence into a function call. The app is the companion demo of the talk
+*From Dumb Client to Hybrid Intelligence* (next.app devcon 2026, Berlin).
 
-* [/app/shared](./app/shared/src) is for code that will be shared across your Compose Multiplatform applications.
-  It contains several subfolders:
-  - [commonMain](./app/shared/src/commonMain/kotlin) is for code that’s common for all targets.
-  - Other folders are for Kotlin code that will be compiled for only the platform indicated in the folder name.
-    For example, if you want to use Apple’s CoreCrypto for the iOS part of your Kotlin app,
-    the [iosMain](./app/shared/src/iosMain/kotlin) folder would be the right place for such calls.
-    Similarly, if you want to edit the Desktop (JVM) specific part, the [jvmMain](./app/shared/src/jvmMain/kotlin)
-    folder is the appropriate location.
+It exists to show one thing: how little app code an advanced on-device AI pipeline needs when the models are
+packaged as **cartridges** built from public **blueprints** with [SKaiNET](https://github.com/SKaiNET-developers/SKaiNET)
+(Kotlin DSL → StableHLO → IREE).
 
-* [/core](./core/src) is for the code that will be shared between all targets in the project.
-  The most important subfolder is [commonMain](./core/src/commonMain/kotlin). If preferred, you
-  can add code to the platform-specific folders here too.
+```
+mic ─► Moonshine v2 (streaming ASR, IREE) ─► "close the living room blinds"
+      ─► FunctionGemma-270M (NLU, IREE, KV-cache) ─► set_blinds(room="living_room", position="closed")
+      ─► home model ─► the blinds in the UI close
+```
 
-* [/server](./server/src/main/kotlin) is for the Ktor server application.
+The UI shows the pipeline while it runs: partial transcripts, the exact function call, per-stage timings, and a
+greyed-out "cloud" stage that the next talk fills in (hybrid escalation for what the local model cannot answer).
 
-### Running the apps
+## No weights in this repository
 
-Use the run configurations provided by the run widget in your IDE's toolbar. You can also use these commands and options:
+Nothing model-related is committed. The two cartridges are *materialized* from their public blueprints in
+[SKaiNET-cartridge-blueprints](https://github.com/SKaiNET-developers/SKaiNET-cartridge-blueprints):
 
-- Android app: `./gradlew :app:androidApp:assembleDebug`
-- Desktop app:
-  - Hot reload: `./gradlew :app:desktopApp:hotRun --auto`
-  - Standard run: `./gradlew :app:desktopApp:run`
-- Server: `./gradlew :server:run`
-- Web app:
-  - Wasm target (faster, modern browsers): `./gradlew :app:webApp:wasmJsBrowserDevelopmentRun`
-  - JS target (slower, supports older browsers): `./gradlew :app:webApp:jsBrowserDevelopmentRun`
-- iOS app: open the [/app/iosApp](./app/iosApp) directory in Xcode and run it from there.
+| Cartridge | Blueprint | Weights (downloaded by the blueprint) | Size on device |
+|---|---|---|---|
+| speech → text, English | `asr-moonshine-v2-streaming-iree` | `moonshine-ai/moonshine-streaming-tiny` (MIT) | ~180 MB |
+| text → function call | `nlu-functiongemma-270m-iree` | `unsloth/functiongemma-270m-it-GGUF` (Gemma Terms of Use) | ~1.7 GB |
 
-### Running tests
+This repository holds the *inputs* to that materialization: the home tool catalog
+(`cartridges/catalogs/home-tools.v1.json`) and the materialization profiles (`cartridges/profiles/`).
+The FunctionGemma profile records acceptance of the [Gemma Terms of Use](https://ai.google.dev/gemma/terms);
+whoever materializes the cartridge accepts them — edit `accepted_by` before you build.
 
-Use the run button in your IDE's editor gutter, or run tests using Gradle tasks:
+## Build the cartridges
 
-- Android tests: `./gradlew :app:shared:testAndroidHostTest`
-- Desktop tests: `./gradlew :app:shared:jvmTest`
-- Server tests: `./gradlew :server:test`
-- Web tests:
-  - Wasm target: `./gradlew :app:shared:wasmJsTest`
-  - JS target: `./gradlew :app:shared:jsTest`
-- iOS tests: `./gradlew :app:shared:iosSimulatorArm64Test`
+Prerequisites: JDK 21, Docker, a sibling checkout of `SKaiNET-cartridge-blueprints` (`../../` relative to this
+directory, or `BLUEPRINTS_DIR=…`), and an Ed25519 signing key:
 
----
+```
+openssl genpkey -algorithm ed25519 -out ~/keys/homeevensmarter-dev.pem
+export CARTRIDGE_SIGNING_KEY="$(cat ~/keys/homeevensmarter-dev.pem)"
+scripts/materialize.sh all vulkan-arm64        # or: asr|nlu, vulkan-arm64|cpu-arm64|both
+```
 
-Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html),
-[Compose Multiplatform](https://kotlinlang.org/compose-multiplatform/),
-[Kotlin/Wasm](https://kotl.in/wasm/)…
+The IREE tools image (`skainet/iree-compiler:3.11.0`) is built on first use from
+[SKaiNET-IREE-tools](https://github.com/SKaiNET-developers/SKaiNET-IREE-tools). Results land in
+`build/cartridges/<cartridge id>/` as plain pack_dirs (`descriptor.json`, signed `manifest.json`, `artifacts/`).
 
-We would appreciate your feedback on Compose/Web and Kotlin/Wasm in the public Slack channel [#compose-web](https://slack-chats.kotlinlang.org/c/compose-web).
-If you face any issues, please report them on [YouTrack](https://youtrack.jetbrains.com/newIssue?project=CMP).
+## Get them onto the phone
+
+Run the companion server on the laptop and let the app pull the cartridges over WiFi:
+
+```
+scripts/serve-cartridges.sh                     # prints the URL to type into the app's Cartridges screen
+```
+
+The app downloads every file, verifies each SHA-256 against the signed manifest, then loads the engines
+("Load & warm up" — the language model prefills its catalog once, which takes a while). `scripts/sideload-cartridges.sh`
+pushes the same pack_dirs with adb if there is no network.
+
+## Run
+
+- Android (the demo target, arm64): `./gradlew :app:androidApp:installDebug`
+- Desktop (rehearsal build; same UI on built-in fake engines, real ones are the next stage): `./gradlew :app:desktopApp:run`
+- Companion server: `./gradlew :server:run` (or `scripts/serve-cartridges.sh`)
+- Tests: `./gradlew :core:jvmTest :cartridges:jvmTest :server:test`
+
+The app starts on **fake engines** (scripted partials, keyword rules) so the whole UI works anywhere; switch them off
+on the Cartridges screen once the real cartridges are loaded.
+
+## Layout
+
+| Module | What |
+|---|---|
+| `:core` | the home model, the tool → command mapping, the voice pipeline, engine contracts, fakes, manifest verification — pure Kotlin |
+| `:cartridges` | cartridge store and downloader; Android adapters over the blueprint modules' APIs (`sk.ainet.cartridge.*`) |
+| `:app:shared` | Compose Multiplatform UI: home, pipeline visualizer, cartridges |
+| `:app:androidApp`, `:app:desktopApp` | platform entry points: microphone, storage, settings |
+| `:server` | the companion server that serves materialized cartridges |
+| `cartridges/catalogs`, `cartridges/profiles`, `scripts/` | materialization inputs and the scripts around them |
+
+More in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) and [docs/DEMO.md](docs/DEMO.md).
+
+## License
+
+MIT for the code in this repository. The models keep their own licenses (see the table above); the blueprints
+record them per source and the materialization writes the effective license into every cartridge manifest.
