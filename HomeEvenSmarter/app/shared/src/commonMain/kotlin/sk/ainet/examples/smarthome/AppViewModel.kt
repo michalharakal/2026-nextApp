@@ -69,6 +69,7 @@ data class RunView(
     val asrMs: Long = 0,
     val outcome: NluOutcome? = null,
     val nluMs: Long = 0,
+    val correction: String = "",
     val actionMessage: String = "",
     val actionOk: Boolean? = null,
     val escalation: String = "",
@@ -262,6 +263,7 @@ class AppViewModel(val env: AppEnvironment, private val scope: CoroutineScope) {
                     .withStage(Stage.LISTENING, StageStatus.DONE).withStage(Stage.ASR, if (e.source() == "text") StageStatus.SKIPPED else StageStatus.DONE)
                 is PipelineEvent.Resolving -> v.withStage(Stage.NLU, StageStatus.ACTIVE)
                 is PipelineEvent.Resolved -> v.copy(outcome = e.outcome, nluMs = e.nluMs).withStage(Stage.NLU, if (e.outcome is NluOutcome.Failed) StageStatus.FAILED else StageStatus.DONE)
+                is PipelineEvent.Corrected -> v.copy(correction = "rule: ${e.correction.reason} → ${e.correction.to.name}(${e.correction.to.args.entries.joinToString { "${it.key}=\"${it.value}\"" }})")
                 is PipelineEvent.Acted -> {
                     if (e.result.ok) flash(e.result.changed)
                     v.copy(actionMessage = e.result.message, actionOk = e.result.ok).withStage(Stage.ACTION, if (e.result.ok) StageStatus.DONE else StageStatus.FAILED)

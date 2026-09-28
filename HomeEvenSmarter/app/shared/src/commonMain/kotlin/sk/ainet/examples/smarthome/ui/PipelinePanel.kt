@@ -74,6 +74,7 @@ fun PipelinePanel(vm: AppViewModel, modifier: Modifier = Modifier) {
                     is NluOutcome.NoCall -> { Text("no function call", color = Palette.warn); Meta(o.text.take(200)); TimingBars(o.timing) }
                     is NluOutcome.Failed -> { Text("failed: ${o.reason}", color = Palette.error); o.timing?.let { TimingBars(it) } }
                 }
+                if (run.correction.isNotEmpty()) Text(run.correction, color = Palette.warn, fontSize = 13.sp)
                 if (run.nluMs > 0) Meta("nlu ${run.nluMs} ms · ${engines.nluId ?: ""}")
             }
             Section("Action", Palette.ok) {

@@ -102,6 +102,25 @@ class VoicePipelineTest {
     }
 
     @Test
+    fun `a host rule repairs a temperature mistaken for brightness`() = runTest {
+        val nlu = object : NluEngine {
+            override val id = "stub"; override val toolNames = HomeTools.names
+            override fun warmUp() {}; override fun close() {}
+            override fun resolve(transcript: String, budgetMs: Long) = NluOutcome.Call(HomeTools.SET_LIGHT, mapOf("room" to "bedroom", "state" to "off", "brightness" to "21"), "", NluOutcome.Timing.NONE)
+        }
+        val store = HomeStore()
+        val p = pipeline(nlu = nlu, store = store)
+        val events = mutableListOf<PipelineEvent>()
+        val collector = launch(UnconfinedTestDispatcher(testScheduler)) { p.events.collect { events += it } }
+        val run = p.runText("Set the bedroom to twenty one degrees")
+        assertEquals(HomeTools.SET_THERMOSTAT, run.calledTool)
+        assertEquals(21.0, store.current.room(Room.BEDROOM).thermostat.targetCelsius)
+        assertEquals(false, store.current.room(Room.BEDROOM).light.on)
+        assertNotNull(events.filterIsInstance<PipelineEvent.Corrected>().singleOrNull())
+        collector.cancel()
+    }
+
+    @Test
     fun `an engine exception is a failed outcome, not a crash`() = runTest {
         val nlu = object : NluEngine {
             override val id = "stub"; override val toolNames = HomeTools.names

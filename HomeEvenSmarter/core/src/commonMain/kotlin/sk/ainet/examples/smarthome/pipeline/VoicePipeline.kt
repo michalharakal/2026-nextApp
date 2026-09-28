@@ -20,6 +20,8 @@ import sk.ainet.examples.smarthome.engine.NluEngine
 import sk.ainet.examples.smarthome.engine.NluOutcome
 import sk.ainet.examples.smarthome.hybrid.EscalationResult
 import sk.ainet.examples.smarthome.hybrid.IntentEscalation
+import sk.ainet.examples.smarthome.tools.Correction
+import sk.ainet.examples.smarthome.tools.HostRules
 import kotlin.math.sqrt
 import kotlin.time.TimeSource
 
@@ -101,10 +103,13 @@ class VoicePipeline(
 
         var action: ActionResult? = null
         var escalated: EscalationResult? = null
+        var correction: Correction? = null
         when (outcome) {
             is NluOutcome.Call -> {
+                correction = HostRules.apply(transcript, outcome)?.also { emit(PipelineEvent.Corrected(now(), it)) }
+                val call = correction?.to ?: outcome
                 _state.value = PipelineState.ACTING
-                action = router.dispatch(Intent(outcome.name, outcome.args))
+                action = router.dispatch(Intent(call.name, call.args))
                 emit(PipelineEvent.Acted(now(), action))
                 if (!action.ok) escalated = escalate(transcript, outcome, "action rejected: ${action.message}")
             }
@@ -114,7 +119,7 @@ class VoicePipeline(
         val total = now() - t0
         emit(PipelineEvent.Finished(now(), total))
         _state.value = PipelineState.IDLE
-        return PipelineRun(transcript, outcome, action, escalated, asrMs, nluMs, total,
+        return PipelineRun(transcript, outcome, correction, action, escalated, asrMs, nluMs, total,
             failure = (outcome as? NluOutcome.Failed)?.reason)
     }
 
@@ -129,7 +134,7 @@ class VoicePipeline(
         val total = now() - t0
         emit(PipelineEvent.Finished(now(), total))
         _state.value = PipelineState.IDLE
-        return PipelineRun("", null, null, null, asrMs, 0, total, failure = reason)
+        return PipelineRun("", null, null, null, null, asrMs, 0, total, failure = reason)
     }
 
     companion object {
