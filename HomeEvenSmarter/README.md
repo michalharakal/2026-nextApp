@@ -85,5 +85,54 @@ More in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) and [docs/DEMO.md](docs/DEM
 
 ## License
 
-MIT for the code in this repository. The models keep their own licenses (see the table above); the blueprints
-record them per source and the materialization writes the effective license into every cartridge manifest.
+MIT for the code in this repository. The models keep their own licenses: Moonshine is MIT, FunctionGemma is under
+the Gemma Terms of Use (see below). The blueprints record the license per source, and the materialization writes
+the effective license into every cartridge manifest.
+
+## FunctionGemma Integration and Licensing
+
+This software integrates with Google's **FunctionGemma (`google/functiongemma-270m-it`)** model.
+
+The source code of this project is licensed under the **MIT License**. The MIT License applies only to the software and source code contained in this repository.
+
+### Model weights are not distributed
+
+This repository does **not** include, redistribute, sublicense, or package any FunctionGemma model weights.
+
+Instead, the software contains integration code that allows the required model files to be downloaded separately from their official distribution source, such as Hugging Face:
+
+`google/functiongemma-270m-it`
+
+(The materialization profile in `cartridges/profiles/` fetches the Q8_0 GGUF conversion `unsloth/functiongemma-270m-it-GGUF` of that model, pinned by revision and digest in the blueprint.)
+
+The FunctionGemma model, model weights, and related Google materials are separate third-party components and are **not covered by this project's MIT License**.
+
+### Gemma Terms of Use
+
+FunctionGemma is provided by Google and is subject to the **Gemma Terms of Use** and applicable Gemma usage policies.
+
+Users who download or use FunctionGemma are responsible for reviewing and complying with the applicable Google terms:
+
+https://ai.google.dev/gemma/terms
+
+Official FunctionGemma model page:
+
+https://huggingface.co/google/functiongemma-270m-it
+
+Downloading or using FunctionGemma through this software does not grant any additional rights to the model beyond those provided by Google under the applicable Gemma terms.
+
+### Separation of licenses
+
+In summary:
+
+- **This application's source code:** MIT License
+- **FunctionGemma model and model weights:** Google Gemma Terms of Use
+- **FunctionGemma weights included in this repository:** None
+
+The FunctionGemma model is obtained separately by the user or by the application from its external distribution source and remains subject to its original terms.
+
+### Third-party components
+
+Other third-party libraries, models, and dependencies used by this project may be subject to their own licenses and terms. Users are responsible for complying with the applicable licenses for those components.
+
+This project is not affiliated with, endorsed by, or sponsored by Google. Google, Gemma, and related names may be trademarks of their respective owners.
