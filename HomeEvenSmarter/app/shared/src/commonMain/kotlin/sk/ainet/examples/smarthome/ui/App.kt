@@ -28,7 +28,8 @@ enum class Destination(val label: String, val glyph: String) { HOME("Home", "⌂
 
 /**
  * The app: on a wide screen (tablet, phone in landscape, desktop) the home and the pipeline sit side by side for the
- * projector; on a narrow screen they are tabs. The cartridge screen is always its own destination.
+ * projector; in portrait the rooms stack above a compact pipeline strip, and the full pipeline view is a tab. The
+ * cartridge screen is always its own destination. No orientation is forced.
  */
 @Composable
 fun App(vm: AppViewModel) {
@@ -57,7 +58,11 @@ fun App(vm: AppViewModel) {
                 Column(Modifier.fillMaxSize()) {
                     Box(Modifier.weight(1f).fillMaxWidth()) {
                         when (destination) {
-                            Destination.HOME -> HomeScreen(vm, Modifier.fillMaxSize().padding(12.dp))
+                            // portrait phone: the rooms on top, a compact pipeline strip with the talk button below
+                            Destination.HOME -> Column(Modifier.fillMaxSize()) {
+                                HomeScreen(vm, Modifier.weight(1f).fillMaxWidth().padding(12.dp))
+                                PipelineStrip(vm, Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp))
+                            }
                             Destination.PIPELINE -> PipelinePanel(vm, Modifier.fillMaxSize().padding(12.dp))
                             Destination.CARTRIDGES -> CartridgesScreen(vm, Modifier.fillMaxSize().padding(12.dp))
                         }

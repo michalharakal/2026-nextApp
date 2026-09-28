@@ -93,6 +93,32 @@ fun PipelinePanel(vm: AppViewModel, modifier: Modifier = Modifier) {
     }
 }
 
+/** Portrait companion of [PipelinePanel]: stage chips, the current sentence, the outcome, and the talk button. */
+@Composable
+fun PipelineStrip(vm: AppViewModel, modifier: Modifier = Modifier) {
+    val run by vm.run.collectAsState()
+    val state by vm.pipelineState.collectAsState()
+    Column(modifier.clip(RoundedCornerShape(12.dp)).background(Palette.surface).padding(10.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        StageChips(run)
+        val text = if (run.transcript.isNotEmpty()) run.transcript else run.partial
+        Text(
+            text.ifEmpty { if (state == PipelineState.LISTENING) "listening…" else "hold the button and speak" },
+            fontSize = 16.sp, fontFamily = FontFamily.Monospace, maxLines = 2,
+            color = if (run.transcript.isNotEmpty()) Palette.text else Palette.textDim,
+        )
+        val outcome = when (val o = run.outcome) {
+            null -> if (state == PipelineState.RESOLVING) "thinking…" else ""
+            is NluOutcome.Call -> "${o.name}(${o.args.entries.joinToString { "${it.key}=${it.value}" }})"
+            is NluOutcome.NoCall -> "no function call"
+            is NluOutcome.Failed -> "failed: ${o.reason}"
+        }
+        if (outcome.isNotEmpty()) Text(outcome, fontSize = 13.sp, fontFamily = FontFamily.Monospace, color = Palette.accent2, maxLines = 2)
+        if (run.correction.isNotEmpty()) Text(run.correction, fontSize = 12.sp, color = Palette.warn, maxLines = 2)
+        if (run.actionMessage.isNotEmpty()) Text(run.actionMessage + (if (run.totalMs > 0) "  ·  ${run.totalMs} ms" else ""), fontSize = 14.sp, color = if (run.actionOk == false) Palette.error else Palette.ok, maxLines = 2)
+        Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) { TalkButton(vm) }
+    }
+}
+
 @Composable
 private fun StageChips(run: RunView) {
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {

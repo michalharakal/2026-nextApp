@@ -12,7 +12,7 @@
 9. Switch device cpu ↔ gpu once each; keep the faster one.
 
 ## Before going on stage
-- Phone: airplane mode + WiFi off (nothing is needed once loaded), brightness max, do-not-disturb, charger.
+- Phone: airplane mode + WiFi off (nothing is needed once loaded), brightness max, do-not-disturb, charger. Landscape for the projector (rooms and pipeline side by side); portrait works too (rooms above a compact pipeline strip).
 - App open, engines warm, Home screen visible; rotate once to confirm the engines survive.
 - Laptop: desktop app on fake engines as the fallback (`./gradlew :app:desktopApp:run`).
 - External microphone if the room is loud; push-to-talk needs no silence detection.

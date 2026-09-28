@@ -58,7 +58,7 @@ fun HomeScreen(vm: AppViewModel, modifier: Modifier = Modifier) {
             TextButton(onClick = vm::resetHome) { Text("Reset") }
         }
         Spacer(Modifier.height(8.dp))
-        LazyVerticalGrid(columns = GridCells.Adaptive(minSize = 200.dp), verticalArrangement = Arrangement.spacedBy(12.dp), horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.weight(1f)) {
+        LazyVerticalGrid(columns = GridCells.Adaptive(minSize = 168.dp), verticalArrangement = Arrangement.spacedBy(12.dp), horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.weight(1f)) {
             items(Room.entries, key = { it.id }) { room -> RoomCard(home.room(room), changed) }
             items(Door.entries, key = { it.id }) { door -> DoorCard(door, home.locks[door] == true, DeviceRef.LockOf(door) in changed) }
         }
