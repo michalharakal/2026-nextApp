@@ -14,7 +14,10 @@
   },
   "measurements": {
     "performance": {
-      "measured_on": "NOT YET MEASURED - provisional materialization for on-device measurement of this exact build on the demo phone; numbers follow once measured (see docs/DEMO.md)"
+      "rtf": 0.769,
+      "latency_p50_ms": 1175,
+      "measured_on": "Google Pixel 8a (Tensor G3, Mali GPU), Android 17, Vulkan GPU, IREE 3.11.0, 2026-09-28; one text-to-speech utterance of 1528 ms streamed in 80 ms frames, 5 partials, exact transcript",
+      "methodology": "docs/golden-utterances.md (RealCartridgeGoldenTest spoken path)"
     }
   },
   "signing": {
