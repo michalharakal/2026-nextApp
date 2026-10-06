@@ -15,7 +15,7 @@ The sentences rehearsed for the stage and used by "Run golden set" (typed, strai
 | 8 | Lock the front door | set_lock |
 | 9 | Movie time | set_scene |
 | 10 | What is the status of the hallway | get_status |
-| 11 | What is the weather like tomorrow | *none* → escalation seam |
+| 11 | What is the weather like tomorrow | `get_weather` → companion middleware (scores on the NLU hit alone) |
 | 12 | Order a pizza for dinner | *none* → escalation seam |
 
 Record results per run (device, cpu/gpu, date) in the work log.

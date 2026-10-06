@@ -79,7 +79,7 @@ data class RunView(
 )
 
 data class GoldenResult(val case: GoldenCase, val run: PipelineRun) {
-    val passed: Boolean get() = run.calledTool == case.expectedTool && (case.expectedTool == null || run.action?.ok == true)
+    val passed: Boolean get() = run.calledTool == case.expectedTool && (case.expectedTool == null || case.remote || run.action?.ok == true)
 }
 
 /**
