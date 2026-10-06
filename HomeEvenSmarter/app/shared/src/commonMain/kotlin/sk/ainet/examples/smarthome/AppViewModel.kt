@@ -12,10 +12,13 @@ import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import sk.ainet.examples.smarthome.actions.ActionResult
 import sk.ainet.examples.smarthome.actions.HomeActions
 import sk.ainet.examples.smarthome.actions.HomeStore
+import sk.ainet.examples.smarthome.actions.Intent
 import sk.ainet.examples.smarthome.cartridge.CartridgeIndex
 import sk.ainet.examples.smarthome.cartridges.CartridgeDownloader
+import sk.ainet.examples.smarthome.cartridges.CompanionToolClient
 import sk.ainet.examples.smarthome.cartridges.DevicePreference
 import sk.ainet.examples.smarthome.cartridges.DownloadEvent
 import sk.ainet.examples.smarthome.cartridges.InstalledCartridge
@@ -34,6 +37,8 @@ import sk.ainet.examples.smarthome.pipeline.PipelineRun
 import sk.ainet.examples.smarthome.pipeline.PipelineState
 import sk.ainet.examples.smarthome.pipeline.Stage
 import sk.ainet.examples.smarthome.pipeline.VoicePipeline
+import sk.ainet.examples.smarthome.tools.HomeTools
+import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.TimeSource
 
 /** Engines as the UI sees them. */
@@ -122,6 +127,7 @@ class AppViewModel(val env: AppEnvironment, private val scope: CoroutineScope, v
     private var utteranceJob: Job? = null
     private var fakeScriptIndex = 0
     private val downloader = CartridgeDownloader(env.store)
+    private val toolClient = CompanionToolClient()
     private val started = TimeSource.Monotonic.markNow()
 
     init {
@@ -185,10 +191,22 @@ class AppViewModel(val env: AppEnvironment, private val scope: CoroutineScope, v
     private fun rebuildPipeline() {
         val n = nlu ?: return
         pipelineJob?.cancel()
-        val p = VoicePipeline(asr, n, HomeActions(homeStore).router())
+        // the home commands act locally; remote tools go to the companion middleware
+        val router = HomeActions(homeStore).router().register(HomeTools.GET_WEATHER, ::remoteTool)
+        val p = VoicePipeline(asr, n, router)
         pipeline = p
         pipelineJob = scope.launch { p.events.collect(::onEvent) }
         scope.launch { p.state.collect { _pipelineState.value = it } }
+    }
+
+    /** Executes a remote tool on the companion server. A dead companion is a failed action, never a crash. */
+    private suspend fun remoteTool(intent: Intent): ActionResult = try {
+        val result = toolClient.call(_serverUrl.value, intent.tool, intent.args)
+        ActionResult(intent.tool, result.ok, result.message)
+    } catch (e: CancellationException) {
+        throw e
+    } catch (e: Exception) {
+        ActionResult(intent.tool, false, "companion unreachable — start the companion server and check its URL")
     }
 
     private fun closeEngines() {
