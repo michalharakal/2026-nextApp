@@ -94,6 +94,23 @@ control-backend sibling project.
       Server curl matrix, desktop demo on fakes with and without companion, golden set, no-sibling
       build check; demo script line in `docs/DEMO.md`.
 
+## M — eager desktop engines (post-talk)
+
+The speech model also exists as framework-native eager modules that run on the JVM CPU — no compiled
+runtime, no native code. That makes a real desktop engine a Kotlin-only task.
+
+- [ ] M1: eager CPU spike
+      Time the existing end-to-end eager decode on a laptop against a 3 s utterance; go/no-go for
+      real-time partials.
+- [ ] M2: streaming session loop over the eager modules
+      Frames in, cumulative partials out: incremental frontend/encoder, prefill once, step decode —
+      the native session's logic, owned in Kotlin.
+- [ ] M3: eager-flavor cartridge
+      Same pack format and catalog entry, framework-native weights instead of compiled modules,
+      target `jvm-eager`; one new materialization profile.
+- [ ] M4: real desktop engine factory
+      `JvmEngineFactory` over the eager engine; the desktop app loses its "fakes only" caveat.
+
 ## Risks
 
 - The 270M NLU's accuracy may dip when the catalog grows to seven functions — re-measure and update
