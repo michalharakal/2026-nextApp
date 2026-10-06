@@ -30,13 +30,13 @@ control-backend sibling project.
 
 ## I — companion middleware
 
-- [ ] I1: remote-tool wire types and backend SPI in :core
+- [x] I1: remote-tool wire types and backend SPI in :core
       `remote/RemoteTools.kt`: ToolCall/ToolResult/ToolDescriptor/ToolIndex, DeviceState/
       ControlState, `ToolBackend` + `ToolBackendProvider` (ServiceLoader SPI); JSON round-trip test.
-- [ ] I2: tool registry and REST routes on the companion server
+- [x] I2: tool registry and REST routes on the companion server
       `GET /tools`, `POST /tools/{name}` (unknown → 404; home command without backend → ok=false
       "no control backend"); ServiceLoader discovery in `main()`.
-- [ ] I3: weather backend with env-configured API key
+- [x] I3: weather backend with env-configured API key
       OpenWeatherMap sample backend: `OPENWEATHER_API_KEY`, `HOME_LAT`, `HOME_LON`; injectable
       engine, MockEngine tests; no key → backend simply absent.
 - [ ] I4: reactively aggregated control state endpoint
@@ -47,13 +47,13 @@ control-backend sibling project.
 
 ## J — app integration
 
-- [ ] J1: companion tool client in :cartridges
+- [x] J1: companion tool client in :cartridges
       `CompanionToolClient` beside `CartridgeDownloader`: short timeout, injectable engine,
       `tools()` / `call()` / `controlState()`.
-- [ ] J2: remote handlers registered on the action router
+- [x] J2: remote handlers registered on the action router
       `AppViewModel.rebuildPipeline()` registers `get_weather` → companion call; unreachable
       companion → failed action → the existing escalation path reports it.
-- [ ] J3: companion reachability in the log; cloud stage lights up
+- [x] J3: companion reachability in the log; cloud stage lights up
       `fetchIndex()` also lists the companion's tools; a remote tool's successful action marks the
       cloud stage done in the pipeline panel.
 
