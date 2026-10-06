@@ -44,6 +44,9 @@ control-backend sibling project.
       `ControlState` StateFlow; `GET /control/state`.
 - [ ] I5: (optional) control state push channel
       SSE `GET /control/events`; app subscription deferred.
+- [x] I6: the companion documents its own API
+      Hand-written OpenAPI 3 description in `server/src/main/resources/openapi.yaml`, served at
+      `GET /openapi.yaml`; kept honest by a route test. `/control/state` joins it with I4.
 
 ## J — app integration
 

@@ -65,6 +65,10 @@ fun Application.module(
         }
         get("/cartridges/index.json") { call.respond(catalog.scan()) }
         get("/health") { call.respond(HttpStatusCode.OK, mapOf("ok" to true)) }
+        get("/openapi.yaml") {
+            val spec = checkNotNull(javaClass.classLoader.getResource("openapi.yaml")) { "openapi.yaml missing from resources" }
+            call.respondText(spec.readText(), ContentType.parse("application/yaml"))
+        }
         staticFiles("/cartridges", catalog.root)
     }
 }

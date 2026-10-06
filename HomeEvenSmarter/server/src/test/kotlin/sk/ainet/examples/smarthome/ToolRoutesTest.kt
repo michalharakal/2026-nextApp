@@ -81,4 +81,14 @@ class ToolRoutesTest {
         assertTrue(result.ok)
         assertEquals("echo ?", result.message)
     }
+
+    @Test
+    fun `the companion documents its own api`() = withServer(ToolRegistry(emptyList())) { client ->
+        val response = client.get("/openapi.yaml")
+        assertEquals(HttpStatusCode.OK, response.status)
+        val spec = response.bodyAsText()
+        assertTrue(spec.startsWith("openapi:"), spec.take(40))
+        // the routes of this test suite stay documented
+        assertTrue("/tools/{name}" in spec && "/cartridges/index.json" in spec)
+    }
 }
