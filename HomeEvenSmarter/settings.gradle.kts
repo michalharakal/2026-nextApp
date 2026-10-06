@@ -32,15 +32,21 @@ plugins {
 }
 
 // The two cartridge blueprints (Kotlin API + build recipe, no weights) are consumed from a sibling checkout of
-// SKaiNET-cartridge-blueprints as an included build. Override the location with -PblueprintsDir=<path>.
+// SKaiNET-cartridge-blueprints as an included build. Override the location with -PblueprintsDir=<path> or a
+// `blueprintsDir` entry in ~/.gradle/gradle.properties. The checkout is OPTIONAL: without it everything builds
+// except the Android app's real-engine adapters — server, desktop app and all tests need nothing from it.
 val blueprintsDir = providers.gradleProperty("blueprintsDir").getOrElse("../../SKaiNET-cartridge-blueprints")
-includeBuild(blueprintsDir) {
-    dependencySubstitution {
-        substitute(module("sk.ainet.cartridge:asr-moonshine-v2-streaming-iree"))
-            .using(project(":blueprints:asr-moonshine-v2-streaming-iree"))
-        substitute(module("sk.ainet.cartridge:nlu-functiongemma-270m-iree"))
-            .using(project(":blueprints:nlu-functiongemma-270m-iree"))
+if (file(blueprintsDir).isDirectory) {
+    includeBuild(blueprintsDir) {
+        dependencySubstitution {
+            substitute(module("sk.ainet.cartridge:asr-moonshine-v2-streaming-iree"))
+                .using(project(":blueprints:asr-moonshine-v2-streaming-iree"))
+            substitute(module("sk.ainet.cartridge:nlu-functiongemma-270m-iree"))
+                .using(project(":blueprints:nlu-functiongemma-270m-iree"))
+        }
     }
+} else {
+    logger.lifecycle("note: blueprints checkout not found at $blueprintsDir — the Android app's real engines will not resolve (set -PblueprintsDir=<path>); everything else builds normally")
 }
 
 include(":core")
