@@ -32,9 +32,9 @@ enum class Destination(val label: String, val glyph: String) { HOME("Home", "⌂
  * cartridge screen is always its own destination. No orientation is forced.
  */
 @Composable
-fun App(vm: AppViewModel) {
+fun App(vm: AppViewModel, start: Destination = Destination.HOME) {
     HomeEvenSmarterTheme {
-        var destination by remember { mutableStateOf(Destination.HOME) }
+        var destination by remember { mutableStateOf(start) }
         BoxWithConstraints(Modifier.fillMaxSize().background(Palette.background).safeDrawingPadding()) {
             val wide = maxWidth > 840.dp
             if (wide) {
