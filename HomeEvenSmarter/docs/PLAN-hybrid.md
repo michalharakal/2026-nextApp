@@ -12,19 +12,19 @@ control-backend sibling project.
 
 ## H — catalog v3 + domain
 
-- [ ] H1: suspend Handler and ActionRouter.dispatch
+- [x] H1: suspend Handler and ActionRouter.dispatch
       `core/.../actions/Actions.kt`, `ActionRouterTest` — remote tools do network I/O; the only
       dispatch call site (`VoicePipeline.resolveAndAct`) is already suspend.
-- [ ] H2: tool catalog v3 adds get_weather
+- [x] H2: tool catalog v3 adds get_weather
       `cartridges/catalogs/home-tools.v1.json` in place (id → `home-tools.v3`): args `when`
       ∈ now|today|tomorrow, optional `place`, nothing required.
-- [ ] H3: HomeTools mirror, home/remote split, contract test
+- [x] H3: HomeTools mirror, home/remote split, contract test
       `HomeTools.GET_WEATHER` + `homeCommandNames`; `HomeActions.handlers()` registers only home
       commands; `CatalogContractTest` round-trips home commands only.
-- [ ] H4: keyword NLU resolves weather
+- [x] H4: keyword NLU resolves weather
       Weather branch in `KeywordNluEngine` *before* the status rule; `VoicePipelineTest` escalation
       case switches to an out-of-catalog utterance.
-- [ ] H5: golden set expects get_weather; remote-aware scoring
+- [x] H5: golden set expects get_weather; remote-aware scoring
       `GoldenCase.remote` flag — a remote tool's NLU hit passes even when no companion is reachable
       (the golden set separates understanding errors from infrastructure).
 
