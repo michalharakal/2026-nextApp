@@ -283,7 +283,10 @@ class AppViewModel(val env: AppEnvironment, private val scope: CoroutineScope, v
                 is PipelineEvent.Corrected -> v.copy(correction = "rule: ${e.correction.reason} → ${e.correction.to.name}(${e.correction.to.args.entries.joinToString { "${it.key}=\"${it.value}\"" }})")
                 is PipelineEvent.Acted -> {
                     if (e.result.ok) flash(e.result.changed)
-                    v.copy(actionMessage = e.result.message, actionOk = e.result.ok).withStage(Stage.ACTION, if (e.result.ok) StageStatus.DONE else StageStatus.FAILED)
+                    val acted = v.copy(actionMessage = e.result.message, actionOk = e.result.ok).withStage(Stage.ACTION, if (e.result.ok) StageStatus.DONE else StageStatus.FAILED)
+                    // a remote tool ran on the companion: the cloud chip is no placeholder for that run
+                    if (e.result.tool in HomeTools.homeCommandNames) acted
+                    else acted.withStage(Stage.CLOUD, if (e.result.ok) StageStatus.DONE else StageStatus.FAILED)
                 }
                 is PipelineEvent.Escalated -> v.copy(escalation = "${e.reason} → ${e.result::class.simpleName}: ${e.result.describe()}")
                     .withStage(Stage.ACTION, if (v.stages[Stage.ACTION] == StageStatus.PENDING) StageStatus.SKIPPED else v.stages.getValue(Stage.ACTION))
@@ -327,6 +330,8 @@ class AppViewModel(val env: AppEnvironment, private val scope: CoroutineScope, v
                 val index = withContext(Dispatchers.Default) { downloader.index(_serverUrl.value) }
                 _cartridges.update { it.copy(index = index) }
                 log("server lists ${index.cartridges.size} cartridges")
+                runCatching { withContext(Dispatchers.Default) { toolClient.tools(_serverUrl.value) } }
+                    .onSuccess { tools -> log("companion tools: " + tools.tools.map { it.name }.ifEmpty { listOf("none") }.joinToString()) }
             } catch (e: Exception) {
                 _cartridges.update { it.copy(indexError = e.message ?: "cannot reach server") }
             }
