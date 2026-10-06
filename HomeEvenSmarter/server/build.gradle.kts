@@ -24,6 +24,11 @@ dependencies {
     implementation(libs.ktor.serverContentNegotiation)
     implementation(libs.ktor.serverPartialContent)
     implementation(libs.ktor.serializationKotlinxJson)
+    // outbound calls of the tool backends (weather); same client stack the app modules use
+    implementation(libs.ktor.clientCore)
+    implementation(libs.ktor.clientCio)
     testImplementation(libs.ktor.serverTestHost)
+    testImplementation(libs.ktor.clientMock)
+    testImplementation(libs.kotlinx.coroutinesTest)
     testImplementation(libs.kotlin.testJunit)
 }
