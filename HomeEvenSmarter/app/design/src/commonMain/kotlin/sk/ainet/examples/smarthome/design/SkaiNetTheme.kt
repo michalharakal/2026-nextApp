@@ -1,8 +1,10 @@
 package sk.ainet.examples.smarthome.design
 
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.graphics.Color
 
 /**
@@ -52,5 +54,9 @@ private val scheme = darkColorScheme(
 
 @Composable
 fun SkaiNetTheme(content: @Composable () -> Unit) {
-    MaterialTheme(colorScheme = scheme, content = content)
+    MaterialTheme(colorScheme = scheme) {
+        // Screens draw their own backgrounds instead of sitting in a Surface, so the default content color
+        // would stay black. Pin it to the theme's text color: un-colored Text is readable on dark, always.
+        CompositionLocalProvider(LocalContentColor provides SkaiNet.text, content = content)
+    }
 }
