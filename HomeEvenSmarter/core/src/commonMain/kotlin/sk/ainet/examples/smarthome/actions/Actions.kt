@@ -73,7 +73,7 @@ class HomeActions(private val store: HomeStore) {
     }
 
     fun handlers(): Map<String, Handler> =
-        sk.ainet.examples.smarthome.tools.HomeTools.names.associateWith { { intent: Intent -> handle(intent) } }
+        sk.ainet.examples.smarthome.tools.HomeTools.homeCommandNames.associateWith { { intent: Intent -> handle(intent) } }
 
     fun router(): ActionRouter = ActionRouter().registerAll(handlers())
 }

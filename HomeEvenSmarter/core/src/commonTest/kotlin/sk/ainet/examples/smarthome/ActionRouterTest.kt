@@ -15,9 +15,9 @@ import kotlin.test.assertTrue
 
 class ActionRouterTest {
     @Test
-    fun `home router registers exactly the catalog functions`() {
+    fun `home router registers exactly the home commands`() {
         val router = HomeActions(HomeStore()).router()
-        assertEquals(HomeTools.names.sorted(), router.tools)
+        assertEquals(HomeTools.homeCommandNames.sorted(), router.tools)
     }
 
     @Test
