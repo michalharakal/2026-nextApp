@@ -28,6 +28,7 @@ kotlin {
         commonMain.dependencies {
             api(project(":core"))
             api(project(":cartridges"))
+            api(project(":app:design"))
             implementation(libs.compose.runtime)
             implementation(libs.compose.foundation)
             // the compose plugin's paired material3 — pinning a different (alpha) version broke binary

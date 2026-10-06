@@ -2,6 +2,7 @@ package sk.ainet.examples.smarthome.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -93,8 +94,13 @@ fun CartridgesScreen(vm: AppViewModel, modifier: Modifier = Modifier) {
                 Column(Modifier.fillMaxWidth().padding(top = 8.dp)) {
                     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                         Column(Modifier.weight(1f)) {
-                            Text(entry.id, fontFamily = FontFamily.Monospace, fontSize = 13.sp)
-                            Text("${entry.task} · ${entry.abi}${entry.accelerator?.let { " · $it" } ?: ""} · ${entry.sizeBytes / 1_000_000} MB · ${entry.languages.joinToString()}", color = Palette.textDim, fontSize = 12.sp)
+                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                                Text(cartridgeLabel(entry.task, entry.family), fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
+                                TagChip(entry.accelerator ?: "cpu", if (entry.accelerator != null) Palette.accent else Palette.textDim)
+                                if (installed) TagChip("installed", Palette.ok)
+                            }
+                            Text("${entry.sizeBytes / 1_000_000} MB${entry.languages.takeIf { it.isNotEmpty() }?.let { " · " + it.joinToString() } ?: ""}", color = Palette.textDim, fontSize = 12.sp)
+                            Text(entry.id, fontFamily = FontFamily.Monospace, fontSize = 10.sp, color = Palette.textDim)
                         }
                         Button(onClick = { vm.download(entry) }, enabled = progress !is DownloadEvent.Progress && progress !is DownloadEvent.Verifying) {
                             Text(if (installed) "Re-download" else "Download")
@@ -116,8 +122,12 @@ fun CartridgesScreen(vm: AppViewModel, modifier: Modifier = Modifier) {
             for (c in cartridges.installed) {
                 Row(Modifier.fillMaxWidth().padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
                     Column(Modifier.weight(1f)) {
-                        Text(c.id, fontFamily = FontFamily.Monospace, fontSize = 13.sp)
-                        Text("${c.task} · ${c.descriptor.family} ${c.descriptor.version} · ${c.descriptor.target.abi}${c.descriptor.target.accelerator?.let { " · $it" } ?: ""} · ${c.sizeBytes / 1_000_000} MB", color = Palette.textDim, fontSize = 12.sp)
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            Text(cartridgeLabel(c.task, c.descriptor.family), fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
+                            TagChip(c.descriptor.target.accelerator ?: "cpu", if (c.descriptor.target.accelerator != null) Palette.accent else Palette.textDim)
+                        }
+                        Text("${c.descriptor.version} · ${c.sizeBytes / 1_000_000} MB", color = Palette.textDim, fontSize = 12.sp)
+                        Text(c.id, fontFamily = FontFamily.Monospace, fontSize = 10.sp, color = Palette.textDim)
                         cartridges.verification[c.id]?.let { Text(it, fontSize = 12.sp, color = if (it.startsWith("verified")) Palette.ok else Palette.warn) }
                     }
                     OutlinedButton(onClick = { vm.verify(c) }) { Text("Verify") }
@@ -127,6 +137,24 @@ fun CartridgesScreen(vm: AppViewModel, modifier: Modifier = Modifier) {
             }
             OutlinedButton(onClick = vm::refreshCartridges) { Text("Rescan") }
         }
+    }
+}
+
+/** Human name for a cartridge — what it does and which model — instead of the raw pack id. */
+private fun cartridgeLabel(task: String, family: String): String {
+    val role = when (task) { "asr" -> "Speech"; "nlu" -> "Understanding"; else -> task }
+    val model = when {
+        family.startsWith("moonshine") -> "Moonshine v2"
+        family.startsWith("functiongemma") -> "FunctionGemma 270M"
+        else -> family
+    }
+    return "$role · $model"
+}
+
+@Composable
+private fun TagChip(text: String, color: Color) {
+    Box(Modifier.clip(RoundedCornerShape(6.dp)).background(color.copy(alpha = 0.18f)).padding(horizontal = 6.dp, vertical = 2.dp)) {
+        Text(text, color = color, fontSize = 11.sp)
     }
 }
 

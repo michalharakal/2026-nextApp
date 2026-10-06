@@ -51,6 +51,7 @@ if (file(blueprintsDir).isDirectory) {
 
 include(":core")
 include(":cartridges")
+include(":app:design")
 include(":app:shared")
 include(":app:androidApp")
 include(":app:desktopApp")
