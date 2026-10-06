@@ -18,11 +18,11 @@ object SkaiNet {
     val redBright = Color(0xFFE0564C)
     val charcoal = Color(0xFF3B403C)
 
-    // neutrals (charcoal-tinted)
-    val background = Color(0xFF121413)
-    val surface = Color(0xFF1B1E1C)
-    val surfaceHigh = Color(0xFF262A27)
-    val outline = Color(0xFF454B46)
+    // neutrals (charcoal-tinted); surfaces sit visibly above the background so cards read as cards
+    val background = Color(0xFF111312)
+    val surface = Color(0xFF1F2420)
+    val surfaceHigh = Color(0xFF2C322D)
+    val outline = Color(0xFF4A524B)
     val text = Color(0xFFF3F4F2)
     val textDim = Color(0xFFA9B0AA)
 
