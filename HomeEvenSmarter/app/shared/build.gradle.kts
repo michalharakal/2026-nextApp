@@ -30,7 +30,9 @@ kotlin {
             api(project(":cartridges"))
             implementation(libs.compose.runtime)
             implementation(libs.compose.foundation)
-            implementation(libs.compose.material3)
+            // the compose plugin's paired material3 — pinning a different (alpha) version broke binary
+            // compatibility with foundation on Android (AbstractMethodError in OutlinedTextFieldDefaults)
+            implementation(compose.material3)
             implementation(libs.compose.ui)
             implementation(libs.compose.components.resources)
             implementation(libs.compose.uiToolingPreview)
