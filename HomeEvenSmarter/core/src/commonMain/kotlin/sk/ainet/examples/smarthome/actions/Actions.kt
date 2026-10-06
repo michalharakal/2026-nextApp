@@ -1,5 +1,6 @@
 package sk.ainet.examples.smarthome.actions
 
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -21,7 +22,7 @@ data class ActionResult(
     val changed: Set<DeviceRef> = emptySet(),
 )
 
-typealias Handler = (Intent) -> ActionResult
+typealias Handler = suspend (Intent) -> ActionResult
 
 /**
  * Maps tool names to handlers and dispatches intents. The same shape as the router of the embedded
@@ -35,16 +36,18 @@ class ActionRouter {
     fun registerAll(all: Map<String, Handler>): ActionRouter = apply { handlers += all }
     val tools: List<String> get() = handlers.keys.sorted()
 
-    fun dispatch(intent: Intent): ActionResult {
+    suspend fun dispatch(intent: Intent): ActionResult {
         val handler = handlers[intent.tool] ?: return ActionResult(intent.tool, false, "unknown tool '${intent.tool}'")
         return try {
             handler(intent)
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             ActionResult(intent.tool, false, "handler error: ${e.message ?: e::class.simpleName}")
         }
     }
 
-    fun dispatchAll(intents: List<Intent>): List<ActionResult> = intents.map(::dispatch)
+    suspend fun dispatchAll(intents: List<Intent>): List<ActionResult> = intents.map { dispatch(it) }
 }
 
 /** Holds the home. The single writer is [HomeActions]; the UI observes [state]. */
