@@ -86,8 +86,7 @@ data class GoldenResult(val case: GoldenCase, val run: PipelineRun) {
  * The single owner of app state: engines, cartridges, the pipeline and what the UI shows. Platform entry points
  * create one per process (it survives configuration changes) and pass it into `App`.
  */
-class AppViewModel(val env: AppEnvironment, private val scope: CoroutineScope) {
-    val homeStore = HomeStore()
+class AppViewModel(val env: AppEnvironment, private val scope: CoroutineScope, val homeStore: HomeStore = HomeStore()) {
     val homeState: StateFlow<HomeState> get() = homeStore.state
 
     private val _engines = MutableStateFlow(EnginesState(fakes = env.startWithFakes, device = runCatching { DevicePreference.valueOf(env.settings.devicePreference) }.getOrDefault(DevicePreference.AUTO)))
@@ -338,6 +337,26 @@ class AppViewModel(val env: AppEnvironment, private val scope: CoroutineScope) {
 
     fun delete(cartridge: InstalledCartridge) {
         scope.launch(Dispatchers.Default) { env.store.delete(cartridge.id); refreshCartridges(); log("deleted ${cartridge.id}") }
+    }
+
+    /**
+     * Tooling hook (store screenshots, previews): replaces the observable state wholesale with a hand-picked demo
+     * state, without touching engines, the pipeline or disk. The running app never calls this.
+     */
+    fun presentDemo(
+        engines: EnginesState? = null,
+        cartridges: CartridgesState? = null,
+        run: RunView? = null,
+        log: List<String>? = null,
+        golden: List<GoldenResult>? = null,
+        recentlyChanged: Set<DeviceRef>? = null,
+    ) {
+        engines?.let { _engines.value = it }
+        cartridges?.let { _cartridges.value = it }
+        run?.let { _run.value = it }
+        log?.let { _log.value = it }
+        golden?.let { _golden.value = it }
+        recentlyChanged?.let { _recentlyChanged.value = it }
     }
 
     private fun log(line: String) {
