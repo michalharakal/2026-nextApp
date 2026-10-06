@@ -33,10 +33,31 @@ This repository holds the *inputs* to that materialization: the home tool catalo
 The FunctionGemma profile records acceptance of the [Gemma Terms of Use](https://ai.google.dev/gemma/terms);
 whoever materializes the cartridge accepts them — edit `accepted_by` before you build.
 
+## The blueprints checkout
+
+The blueprints are a second repository this project builds against. Clone it **next to this repository's
+clone** and everything finds it without any configuration:
+
+```
+somewhere/
+├── <this repository>/HomeEvenSmarter/   ← the Gradle build you are reading
+└── SKaiNET-cartridge-blueprints/        ← git clone https://github.com/SKaiNET-developers/SKaiNET-cartridge-blueprints
+```
+
+What needs it: **only the Android app's real-engine adapters** (`:app:androidApp` resolves the blueprint
+modules as an included build) and **`scripts/materialize.sh`**. The companion server, the desktop app and
+every test build and run without the checkout — Gradle just prints a note that the Android real engines are
+unavailable.
+
+A checkout somewhere else is two settings with the same value:
+
+- the Gradle build: `blueprintsDir=<path>` in `~/.gradle/gradle.properties` (one-time, machine-local), or
+  `-PblueprintsDir=<path>` per invocation,
+- `scripts/materialize.sh`: the `BLUEPRINTS_DIR=<path>` environment variable.
+
 ## Build the cartridges
 
-Prerequisites: JDK 21, Docker, a sibling checkout of `SKaiNET-cartridge-blueprints` (`../../` relative to this
-directory, or `BLUEPRINTS_DIR=…`), and an Ed25519 signing key:
+Prerequisites: JDK 21, Docker, the blueprints checkout (above), and an Ed25519 signing key:
 
 ```
 openssl genpkey -algorithm ed25519 -out ~/keys/homeevensmarter-dev.pem
@@ -62,7 +83,7 @@ pushes the same pack_dirs with adb if there is no network.
 
 ## Run
 
-- Android (the demo target, arm64): `./gradlew :app:androidApp:installDebug`
+- Android (the demo target, arm64; needs the blueprints checkout): `./gradlew :app:androidApp:installDebug`
 - Desktop (rehearsal build; same UI on built-in fake engines, real ones are the next stage): `./gradlew :app:desktopApp:run`
 - Companion server: `./gradlew :server:run` (or `scripts/serve-cartridges.sh`)
 - Tests: `./gradlew :core:jvmTest :cartridges:jvmTest :server:test`
