@@ -12,8 +12,15 @@ object HomeTools {
     const val SET_LOCK = "set_lock"
     const val SET_SCENE = "set_scene"
     const val GET_STATUS = "get_status"
+    const val GET_WEATHER = "get_weather"
 
-    val names: Set<String> = setOf(SET_LIGHT, SET_THERMOSTAT, SET_BLINDS, SET_LOCK, SET_SCENE, GET_STATUS)
+    val names: Set<String> = setOf(SET_LIGHT, SET_THERMOSTAT, SET_BLINDS, SET_LOCK, SET_SCENE, GET_STATUS, GET_WEATHER)
+
+    /**
+     * The functions that act on the home model itself. [GET_WEATHER] is in the catalog so the NLU can call it,
+     * but it is a *remote* tool: executed by the companion middleware, never by [IntentMapper]/the reducer.
+     */
+    val homeCommandNames: Set<String> = names - GET_WEATHER
 
     object Args {
         const val ROOM = "room"
@@ -23,6 +30,8 @@ object HomeTools {
         const val POSITION = "position"
         const val DOOR = "door"
         const val SCENE = "scene"
+        const val WHEN = "when"
+        const val PLACE = "place"
     }
 
     /** Argument keys per function, as the catalog declares them. */
@@ -33,5 +42,6 @@ object HomeTools {
         SET_LOCK to setOf(Args.DOOR, Args.STATE),
         SET_SCENE to setOf(Args.SCENE),
         GET_STATUS to setOf(Args.ROOM),
+        GET_WEATHER to setOf(Args.WHEN, Args.PLACE),
     )
 }

@@ -1,5 +1,5 @@
 {
-  "id": "home-tools.v2",
+  "id": "home-tools.v3",
   "languages": [
     "en"
   ],
@@ -150,6 +150,25 @@
             "bathroom",
             "hallway"
           ]
+        }
+      }
+    },
+    {
+      "name": "get_weather",
+      "description": "Report the weather or the forecast. Only for weather questions; never controls a device in the house.",
+      "parameters": {
+        "when": {
+          "type": "string",
+          "description": "Which weather to report. Omit for the current weather.",
+          "enum": [
+            "now",
+            "today",
+            "tomorrow"
+          ]
+        },
+        "place": {
+          "type": "string",
+          "description": "A city or place name, only when the user names one. Omit for the home location."
         }
       }
     }

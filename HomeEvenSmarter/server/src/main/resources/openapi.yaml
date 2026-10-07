@@ -1,0 +1,162 @@
+openapi: 3.0.3
+info:
+  title: HomeEvenSmarter companion server
+  description: >
+    The companion middleware the app talks to: cartridge distribution (the packs the phone downloads and
+    verifies) and remote tools (calls the on-device NLU emits but the companion executes — the weather
+    sample, and whatever control backends the classpath provides). The server itself serves this document
+    at /openapi.yaml.
+  version: 1.0.0
+
+paths:
+  /:
+    get:
+      summary: Plain-text listing of the served cartridges
+      responses:
+        "200":
+          content:
+            text/plain: {}
+
+  /health:
+    get:
+      summary: Liveness probe
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+
+  /cartridges/index.json:
+    get:
+      summary: The cartridges this companion serves
+      responses:
+        "200":
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CartridgeIndex" }
+
+  /cartridges/{id}/{path}:
+    get:
+      summary: One file of a cartridge pack_dir
+      description: Supports Range requests so an interrupted download resumes instead of restarting.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+        - { name: path, in: path, required: true, schema: { type: string }, description: "File path inside the pack_dir" }
+      responses:
+        "200": { description: Whole file }
+        "206": { description: Requested byte range }
+        "404": { description: No such cartridge or file }
+
+  /tools:
+    get:
+      summary: The remote tools this companion can execute
+      responses:
+        "200":
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ToolIndex" }
+
+  /tools/{name}:
+    post:
+      summary: Execute one remote tool
+      description: >
+        A known tool without a configured backend answers 200 with ok=false (a soft failure the app shows
+        as a rejected action); only a name that is no tool at all is 404. A missing body is an empty call.
+      parameters:
+        - { name: name, in: path, required: true, schema: { type: string }, example: get_weather }
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ToolCall" }
+            example: { args: { when: tomorrow } }
+      responses:
+        "200":
+          description: Executed (ok may be false)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ToolResult" }
+              example: { tool: get_weather, ok: true, message: "Tomorrow in Mitte: 22 °C, clear sky", data: { temp_c: "22", condition: clear sky, place: Mitte } }
+        "404":
+          description: Unknown tool
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ToolResult" }
+
+components:
+  schemas:
+    ToolCall:
+      type: object
+      properties:
+        args:
+          type: object
+          additionalProperties: { type: string }
+          description: The model's string arguments, verbatim.
+
+    ToolResult:
+      type: object
+      required: [tool, ok, message]
+      properties:
+        tool: { type: string }
+        ok: { type: boolean }
+        message: { type: string, description: The human line the app shows as the action result. }
+        data:
+          type: object
+          additionalProperties: { type: string }
+          description: Machine-readable extras next to the message.
+
+    ToolDescriptor:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string }
+        description: { type: string }
+        args:
+          type: object
+          additionalProperties: { type: string }
+          description: Argument name to a short description.
+
+    ToolIndex:
+      type: object
+      properties:
+        tools:
+          type: array
+          items: { $ref: "#/components/schemas/ToolDescriptor" }
+        backends:
+          type: array
+          items:
+            type: object
+            required: [id, tools]
+            properties:
+              id: { type: string }
+              tools: { type: array, items: { type: string } }
+
+    CartridgeIndex:
+      type: object
+      properties:
+        cartridges:
+          type: array
+          items:
+            type: object
+            required: [id, version, family, task, abi, size_bytes, files]
+            properties:
+              id: { type: string }
+              version: { type: string }
+              family: { type: string }
+              task: { type: string, example: asr }
+              abi: { type: string, example: arm64-v8a }
+              accelerator: { type: string, nullable: true, example: vulkan }
+              languages: { type: array, items: { type: string } }
+              size_bytes: { type: integer, format: int64 }
+              files:
+                type: array
+                items:
+                  type: object
+                  required: [path, size_bytes]
+                  properties:
+                    path: { type: string }
+                    size_bytes: { type: integer, format: int64 }
+                    sha256: { type: string, nullable: true }

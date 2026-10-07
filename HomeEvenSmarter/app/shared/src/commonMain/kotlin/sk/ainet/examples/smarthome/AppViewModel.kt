@@ -12,10 +12,13 @@ import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import sk.ainet.examples.smarthome.actions.ActionResult
 import sk.ainet.examples.smarthome.actions.HomeActions
 import sk.ainet.examples.smarthome.actions.HomeStore
+import sk.ainet.examples.smarthome.actions.Intent
 import sk.ainet.examples.smarthome.cartridge.CartridgeIndex
 import sk.ainet.examples.smarthome.cartridges.CartridgeDownloader
+import sk.ainet.examples.smarthome.cartridges.CompanionToolClient
 import sk.ainet.examples.smarthome.cartridges.DevicePreference
 import sk.ainet.examples.smarthome.cartridges.DownloadEvent
 import sk.ainet.examples.smarthome.cartridges.InstalledCartridge
@@ -34,6 +37,8 @@ import sk.ainet.examples.smarthome.pipeline.PipelineRun
 import sk.ainet.examples.smarthome.pipeline.PipelineState
 import sk.ainet.examples.smarthome.pipeline.Stage
 import sk.ainet.examples.smarthome.pipeline.VoicePipeline
+import sk.ainet.examples.smarthome.tools.HomeTools
+import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.TimeSource
 
 /** Engines as the UI sees them. */
@@ -79,7 +84,7 @@ data class RunView(
 )
 
 data class GoldenResult(val case: GoldenCase, val run: PipelineRun) {
-    val passed: Boolean get() = run.calledTool == case.expectedTool && (case.expectedTool == null || run.action?.ok == true)
+    val passed: Boolean get() = run.calledTool == case.expectedTool && (case.expectedTool == null || case.remote || run.action?.ok == true)
 }
 
 /**
@@ -122,6 +127,7 @@ class AppViewModel(val env: AppEnvironment, private val scope: CoroutineScope, v
     private var utteranceJob: Job? = null
     private var fakeScriptIndex = 0
     private val downloader = CartridgeDownloader(env.store)
+    private val toolClient = CompanionToolClient()
     private val started = TimeSource.Monotonic.markNow()
 
     init {
@@ -185,10 +191,22 @@ class AppViewModel(val env: AppEnvironment, private val scope: CoroutineScope, v
     private fun rebuildPipeline() {
         val n = nlu ?: return
         pipelineJob?.cancel()
-        val p = VoicePipeline(asr, n, HomeActions(homeStore).router())
+        // the home commands act locally; remote tools go to the companion middleware
+        val router = HomeActions(homeStore).router().register(HomeTools.GET_WEATHER, ::remoteTool)
+        val p = VoicePipeline(asr, n, router)
         pipeline = p
         pipelineJob = scope.launch { p.events.collect(::onEvent) }
         scope.launch { p.state.collect { _pipelineState.value = it } }
+    }
+
+    /** Executes a remote tool on the companion server. A dead companion is a failed action, never a crash. */
+    private suspend fun remoteTool(intent: Intent): ActionResult = try {
+        val result = toolClient.call(_serverUrl.value, intent.tool, intent.args)
+        ActionResult(intent.tool, result.ok, result.message)
+    } catch (e: CancellationException) {
+        throw e
+    } catch (e: Exception) {
+        ActionResult(intent.tool, false, "companion unreachable — start the companion server and check its URL")
     }
 
     private fun closeEngines() {
@@ -265,7 +283,10 @@ class AppViewModel(val env: AppEnvironment, private val scope: CoroutineScope, v
                 is PipelineEvent.Corrected -> v.copy(correction = "rule: ${e.correction.reason} → ${e.correction.to.name}(${e.correction.to.args.entries.joinToString { "${it.key}=\"${it.value}\"" }})")
                 is PipelineEvent.Acted -> {
                     if (e.result.ok) flash(e.result.changed)
-                    v.copy(actionMessage = e.result.message, actionOk = e.result.ok).withStage(Stage.ACTION, if (e.result.ok) StageStatus.DONE else StageStatus.FAILED)
+                    val acted = v.copy(actionMessage = e.result.message, actionOk = e.result.ok).withStage(Stage.ACTION, if (e.result.ok) StageStatus.DONE else StageStatus.FAILED)
+                    // a remote tool ran on the companion: the cloud chip is no placeholder for that run
+                    if (e.result.tool in HomeTools.homeCommandNames) acted
+                    else acted.withStage(Stage.CLOUD, if (e.result.ok) StageStatus.DONE else StageStatus.FAILED)
                 }
                 is PipelineEvent.Escalated -> v.copy(escalation = "${e.reason} → ${e.result::class.simpleName}: ${e.result.describe()}")
                     .withStage(Stage.ACTION, if (v.stages[Stage.ACTION] == StageStatus.PENDING) StageStatus.SKIPPED else v.stages.getValue(Stage.ACTION))
@@ -309,6 +330,8 @@ class AppViewModel(val env: AppEnvironment, private val scope: CoroutineScope, v
                 val index = withContext(Dispatchers.Default) { downloader.index(_serverUrl.value) }
                 _cartridges.update { it.copy(index = index) }
                 log("server lists ${index.cartridges.size} cartridges")
+                runCatching { withContext(Dispatchers.Default) { toolClient.tools(_serverUrl.value) } }
+                    .onSuccess { tools -> log("companion tools: " + tools.tools.map { it.name }.ifEmpty { listOf("none") }.joinToString()) }
             } catch (e: Exception) {
                 _cartridges.update { it.copy(indexError = e.message ?: "cannot reach server") }
             }

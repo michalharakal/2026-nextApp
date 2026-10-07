@@ -35,7 +35,7 @@ class FakeAsrEngine(private val script: () -> String, override val language: Str
     }
 }
 
-/** A rule-based stand-in for the language model: regexes over the six home functions. Same outcome type, so the rest of the app cannot tell. */
+/** A rule-based stand-in for the language model: regexes over the catalog functions. Same outcome type, so the rest of the app cannot tell. */
 class KeywordNluEngine(private val simulatedLatencyMs: Long = 0) : NluEngine {
     override val id: String = "keyword-nlu"
     override val toolNames: Set<String> = HomeTools.names
@@ -52,6 +52,11 @@ class KeywordNluEngine(private val simulatedLatencyMs: Long = 0) : NluEngine {
         val room = ROOM_WORDS.entries.firstOrNull { (k, _) -> k in t }?.value
         val number = Regex("""\d+(\.\d+)?""").find(t)?.value
         return when {
+            // before the status rule: "how is the weather" must be weather, not a status report
+            Regex("""\bweather\b|\bforecast\b|\brain(ing|y)?\b|\bsunny\b""").containsMatchIn(t) -> {
+                val `when` = when { "tomorrow" in t -> "tomorrow"; "today" in t -> "today"; else -> "now" }
+                call(HomeTools.GET_WEATHER, "when" to `when`)
+            }
             Regex("""\b(status|state|how is|what.s)\b""").containsMatchIn(t) -> call(HomeTools.GET_STATUS, "room" to room)
             Regex("""\bscene\b|\bmovie\b|\bgood night\b|\bgood morning\b|\bleaving\b|\baway\b""").containsMatchIn(t) -> {
                 val scene = when { "movie" in t -> "movie"; "night" in t -> "night"; "morning" in t -> "morning"; else -> "away" }

@@ -44,7 +44,7 @@ class CartridgeDownloader(
     engine: HttpClientEngine? = null,
 ) {
     private val client = if (engine != null) HttpClient(engine) { install(HttpTimeout) { requestTimeoutMillis = 30 * 60_000 } }
-    else HttpClient(CIO) { install(HttpTimeout) { requestTimeoutMillis = 30 * 60_000; socketTimeoutMillis = 60_000 } }
+    else HttpClient(CIO) { install(HttpTimeout) { requestTimeoutMillis = 30 * 60_000; socketTimeoutMillis = 60_000; connectTimeoutMillis = 4_000 } }
     private val fs = SystemFileSystem
 
     suspend fun index(baseUrl: String): CartridgeIndex {

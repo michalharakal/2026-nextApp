@@ -21,7 +21,7 @@ class CatalogContractTest {
     @Test
     fun `names match HomeTools and stay few`() {
         assertEquals(HomeTools.names, functions.map { it.getValue("name").jsonPrimitive.content }.toSet())
-        assertTrue(functions.size <= 6, "a 270M model degrades beyond a handful of functions")
+        assertTrue(functions.size <= 7, "a 270M model degrades beyond a handful of functions")
     }
 
     @Test
@@ -30,6 +30,8 @@ class CatalogContractTest {
             val name = f.getValue("name").jsonPrimitive.content
             val params = f["parameters"]?.jsonObject ?: emptyMap()
             assertEquals(HomeTools.arguments.getValue(name), params.keys, "$name arguments")
+            // remote tools (companion-executed) have no IntentMapper mapping to round-trip
+            if (name !in HomeTools.homeCommandNames) continue
             val required = f["required"]?.jsonArray?.map { it.jsonPrimitive.content } ?: emptyList()
             // build one intent per enum value of each parameter and make sure the mapper accepts it
             val sample = params.mapValues { (k, v) -> v.jsonObject["enum"]?.jsonArray?.first()?.jsonPrimitive?.content ?: if (k == "temperature") "21" else "50" }

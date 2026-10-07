@@ -71,7 +71,7 @@ class RealCartridgeGoldenTest {
         val latencies = mutableListOf<Long>()
         for (c in GoldenSet.cases) {
             val run = pipeline.runText(c.utterance)
-            val ok = run.calledTool == c.expectedTool && (c.expectedTool == null || run.action?.ok == true)
+            val ok = run.calledTool == c.expectedTool && (c.expectedTool == null || c.remote || run.action?.ok == true)
             if (ok) passed++
             latencies += run.nluMs
             val o = run.outcome

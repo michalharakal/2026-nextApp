@@ -1,0 +1,145 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" font-family="Helvetica Neue, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#A9B0AA"/>
+    </marker>
+    <marker id="arrowRed" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#C33A32"/>
+    </marker>
+    <marker id="arrowDim" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#7F8884"/>
+    </marker>
+  </defs>
+
+  <!-- background -->
+  <rect x="0" y="0" width="1600" height="900" fill="#101211"/>
+
+  <!-- ===================== zones ===================== -->
+  <rect x="40" y="70" width="760" height="710" rx="18" fill="#171A18" stroke="#3B403C" stroke-width="1.5"/>
+  <text x="64" y="106" fill="#F3F4F2" font-size="22" font-weight="700">ON DEVICE</text>
+  <text x="200" y="106" fill="#A9B0AA" font-size="16">local · works with no internet</text>
+
+  <rect x="880" y="70" width="420" height="710" rx="18" fill="#171A18" stroke="#3B403C" stroke-width="1.5"/>
+  <text x="904" y="106" fill="#F3F4F2" font-size="22" font-weight="700">COMPANION</text>
+  <text x="1058" y="106" fill="#A9B0AA" font-size="16">laptop on the LAN</text>
+
+  <rect x="1380" y="70" width="180" height="710" rx="18" fill="#171A18" stroke="#3B403C" stroke-width="1.5"/>
+  <text x="1404" y="106" fill="#F3F4F2" font-size="22" font-weight="700">CLOUD</text>
+
+  <!-- borders -->
+  <line x1="840" y1="60" x2="840" y2="790" stroke="#C33A32" stroke-width="2" stroke-dasharray="10 8" opacity="0.8"/>
+  <text x="840" y="48" fill="#C33A32" font-size="15" text-anchor="middle">WiFi / USB · REST</text>
+  <line x1="1340" y1="60" x2="1340" y2="790" stroke="#C33A32" stroke-width="2" stroke-dasharray="4 8" opacity="0.6"/>
+  <text x="1340" y="48" fill="#C33A32" font-size="15" text-anchor="middle" opacity="0.8">internet</text>
+
+  <!-- ===================== local blocks ===================== -->
+  <!-- mic -->
+  <rect x="90" y="150" width="280" height="76" rx="12" fill="#1F2420" stroke="#4A524B" stroke-width="1.5"/>
+  <text x="110" y="183" fill="#F3F4F2" font-size="19" font-weight="600">Microphone</text>
+  <text x="110" y="208" fill="#A9B0AA" font-size="14">16 kHz frames · push-to-talk</text>
+
+  <!-- asr -->
+  <rect x="90" y="280" width="280" height="76" rx="12" fill="#1F2420" stroke="#4A524B" stroke-width="1.5"/>
+  <text x="110" y="313" fill="#F3F4F2" font-size="19" font-weight="600">Speech · Moonshine v2</text>
+  <text x="110" y="338" fill="#A9B0AA" font-size="14">streaming ASR cartridge · GPU</text>
+
+  <!-- nlu -->
+  <rect x="90" y="410" width="280" height="76" rx="12" fill="#1F2420" stroke="#4A524B" stroke-width="1.5"/>
+  <text x="110" y="443" fill="#F3F4F2" font-size="19" font-weight="600">FunctionGemma 270M</text>
+  <text x="110" y="468" fill="#A9B0AA" font-size="14">NLU cartridge · typed function calls</text>
+
+  <!-- router -->
+  <rect x="90" y="540" width="280" height="76" rx="12" fill="#1F2420" stroke="#4A524B" stroke-width="1.5"/>
+  <text x="110" y="573" fill="#F3F4F2" font-size="19" font-weight="600">Action router</text>
+  <text x="110" y="598" fill="#A9B0AA" font-size="14">validates · local or remote</text>
+
+  <!-- cartridge store -->
+  <rect x="460" y="150" width="300" height="76" rx="12" fill="#1F2420" stroke="#4A524B" stroke-width="1.5"/>
+  <text x="480" y="183" fill="#F3F4F2" font-size="19" font-weight="600">Cartridge store</text>
+  <text x="480" y="208" fill="#A9B0AA" font-size="14">signed packs · digest-verified</text>
+  <path d="M530,226 L310,280" stroke="#7F8884" stroke-width="1.5" stroke-dasharray="4 5" marker-end="url(#arrowDim)"/>
+  <path d="M590,226 L330,410" stroke="#7F8884" stroke-width="1.5" stroke-dasharray="4 5" marker-end="url(#arrowDim)"/>
+  <text x="560" y="262" fill="#7F8884" font-size="13">loads</text>
+
+  <!-- home model / ui -->
+  <rect x="460" y="500" width="300" height="116" rx="12" fill="#1F2420" stroke="#66BB6A" stroke-width="1.5"/>
+  <text x="480" y="536" fill="#F3F4F2" font-size="19" font-weight="600">Home model + UI</text>
+  <text x="480" y="561" fill="#A9B0AA" font-size="14">rooms, lights, locks · pipeline panel</text>
+  <text x="480" y="584" fill="#66BB6A" font-size="14">the light really turns on</text>
+
+  <!-- ===================== companion blocks ===================== -->
+  <rect x="910" y="150" width="360" height="76" rx="12" fill="#1F2420" stroke="#4A524B" stroke-width="1.5"/>
+  <text x="930" y="183" fill="#F3F4F2" font-size="19" font-weight="600">Cartridge registry</text>
+  <text x="930" y="208" fill="#A9B0AA" font-size="14">REST · resumable, digest-checked</text>
+
+  <rect x="910" y="320" width="360" height="76" rx="12" fill="#1F2420" stroke="#4A524B" stroke-width="1.5"/>
+  <text x="930" y="353" fill="#F3F4F2" font-size="19" font-weight="600">Remote-tool middleware</text>
+  <text x="930" y="378" fill="#A9B0AA" font-size="14" font-family="Menlo, monospace">POST /tools/{name} · OpenAPI</text>
+
+  <rect x="910" y="460" width="360" height="70" rx="12" fill="#1F2420" stroke="#4A524B" stroke-width="1.5"/>
+  <text x="930" y="491" fill="#F3F4F2" font-size="19" font-weight="600">Weather backend</text>
+  <text x="930" y="514" fill="#A9B0AA" font-size="14">API key from the environment</text>
+  <path d="M1090,396 L1090,460" stroke="#A9B0AA" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="910" y="590" width="360" height="70" rx="12" fill="none" stroke="#7F8884" stroke-width="1.5" stroke-dasharray="7 6"/>
+  <text x="930" y="621" fill="#A9B0AA" font-size="19" font-weight="600">Control backend</text>
+  <text x="930" y="644" fill="#7F8884" font-size="14">building-bus gateway · private plug-in (SPI)</text>
+
+  <!-- ===================== cloud block ===================== -->
+  <rect x="1400" y="320" width="140" height="76" rx="12" fill="#1F2420" stroke="#4A524B" stroke-width="1.5"/>
+  <text x="1470" y="353" fill="#F3F4F2" font-size="18" font-weight="600" text-anchor="middle">Weather</text>
+  <text x="1470" y="376" fill="#A9B0AA" font-size="14" text-anchor="middle">open data API</text>
+
+  <!-- ===================== numbered flow ===================== -->
+  <!-- 1 voice in -->
+  <path d="M46,188 L90,188" stroke="#A9B0AA" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <circle cx="46" cy="188" r="15" fill="#C33A32"/><text x="46" y="194" fill="#FFFFFF" font-size="16" font-weight="700" text-anchor="middle">1</text>
+  <text x="56" y="142" fill="#A9B0AA" font-size="14" font-style="italic">“What is the weather like tomorrow?”</text>
+
+  <!-- 2 frames -->
+  <path d="M230,226 L230,280" stroke="#A9B0AA" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <circle cx="230" cy="253" r="15" fill="#C33A32"/><text x="230" y="259" fill="#FFFFFF" font-size="16" font-weight="700" text-anchor="middle">2</text>
+  <text x="256" y="258" fill="#A9B0AA" font-size="14">audio frames · live partials</text>
+
+  <!-- 3 transcript -->
+  <path d="M230,356 L230,410" stroke="#A9B0AA" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <circle cx="230" cy="383" r="15" fill="#C33A32"/><text x="230" y="389" fill="#FFFFFF" font-size="16" font-weight="700" text-anchor="middle">3</text>
+  <text x="256" y="388" fill="#A9B0AA" font-size="14">final transcript</text>
+
+  <!-- 4 typed call -->
+  <path d="M230,486 L230,540" stroke="#A9B0AA" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <circle cx="230" cy="513" r="15" fill="#C33A32"/><text x="230" y="519" fill="#FFFFFF" font-size="16" font-weight="700" text-anchor="middle">4</text>
+  <text x="256" y="518" fill="#A9B0AA" font-size="13" font-family="Menlo, monospace">get_weather(when="tomorrow")</text>
+
+  <!-- 5 local action -->
+  <path d="M370,560 L460,548" stroke="#66BB6A" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <circle cx="415" cy="540" r="15" fill="#66BB6A"/><text x="415" y="546" fill="#101211" font-size="16" font-weight="700" text-anchor="middle">5</text>
+  <text x="392" y="640" fill="#66BB6A" font-size="14">home command: acts locally,</text>
+  <text x="392" y="660" fill="#66BB6A" font-size="14">no network, no cloud</text>
+
+  <!-- 6 remote call crossing the border -->
+  <path d="M330,616 L330,688 L820,688 L820,358 L910,358" fill="none" stroke="#C33A32" stroke-width="2.5" marker-end="url(#arrowRed)"/>
+  <circle cx="840" cy="688" r="15" fill="#C33A32"/><text x="840" y="694" fill="#FFFFFF" font-size="16" font-weight="700" text-anchor="middle">6</text>
+  <text x="430" y="679" fill="#C33A32" font-size="13" font-family="Menlo, monospace">POST /tools/get_weather</text>
+
+  <!-- 7 external api -->
+  <path d="M1270,495 L1330,495 L1330,370 L1400,370" fill="none" stroke="#C33A32" stroke-width="2.5" marker-end="url(#arrowRed)"/>
+  <circle cx="1340" cy="430" r="15" fill="#C33A32"/><text x="1340" y="436" fill="#FFFFFF" font-size="16" font-weight="700" text-anchor="middle">7</text>
+
+  <!-- 8 answer back to the pipeline -->
+  <path d="M910,382 L850,382 L850,740 L240,740 L240,616" fill="none" stroke="#C33A32" stroke-width="2.5" marker-end="url(#arrowRed)"/>
+  <circle cx="800" cy="740" r="15" fill="#C33A32"/><text x="800" y="746" fill="#FFFFFF" font-size="16" font-weight="700" text-anchor="middle">8</text>
+  <text x="300" y="764" fill="#C33A32" font-size="14" font-style="italic">“Tomorrow: 9 °C, clear sky” → pipeline panel, cloud chip green</text>
+
+  <!-- model delivery (dashed, downwards flow) -->
+  <path d="M910,188 L760,188" stroke="#7F8884" stroke-width="2.5" stroke-dasharray="8 6" marker-end="url(#arrowDim)"/>
+  <text x="835" y="174" fill="#7F8884" font-size="14" text-anchor="middle">models down</text>
+
+  <!-- ===================== legend ===================== -->
+  <circle cx="72" cy="830" r="12" fill="#C33A32"/><text x="72" y="835" fill="#FFFFFF" font-size="13" font-weight="700" text-anchor="middle">n</text>
+  <text x="94" y="836" fill="#A9B0AA" font-size="15">one utterance, start to answer</text>
+  <line x1="360" y1="830" x2="410" y2="830" stroke="#7F8884" stroke-width="2.5" stroke-dasharray="8 6"/>
+  <text x="422" y="836" fill="#A9B0AA" font-size="15">cartridge delivery — same REST server</text>
+  <line x1="760" y1="830" x2="810" y2="830" stroke="#66BB6A" stroke-width="2.5"/>
+  <text x="822" y="836" fill="#A9B0AA" font-size="15">home control never leaves the device</text>
+</svg>

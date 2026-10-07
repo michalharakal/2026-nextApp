@@ -1,5 +1,6 @@
 package sk.ainet.examples.smarthome
 
+import kotlinx.coroutines.test.runTest
 import sk.ainet.examples.smarthome.actions.ActionRouter
 import sk.ainet.examples.smarthome.actions.HomeActions
 import sk.ainet.examples.smarthome.actions.HomeStore
@@ -14,13 +15,13 @@ import kotlin.test.assertTrue
 
 class ActionRouterTest {
     @Test
-    fun `home router registers exactly the catalog functions`() {
+    fun `home router registers exactly the home commands`() {
         val router = HomeActions(HomeStore()).router()
-        assertEquals(HomeTools.names.sorted(), router.tools)
+        assertEquals(HomeTools.homeCommandNames.sorted(), router.tools)
     }
 
     @Test
-    fun `dispatch mutates the store and reports what changed`() {
+    fun `dispatch mutates the store and reports what changed`() = runTest {
         val store = HomeStore()
         val router = HomeActions(store).router()
         val r = router.dispatch(Intent(HomeTools.SET_LIGHT, mapOf("room" to "kitchen", "state" to "on")))
@@ -30,7 +31,7 @@ class ActionRouterTest {
     }
 
     @Test
-    fun `unknown tool and unmappable arguments fail softly`() {
+    fun `unknown tool and unmappable arguments fail softly`() = runTest {
         val router = HomeActions(HomeStore()).router()
         assertFalse(router.dispatch(Intent("order_pizza")).ok)
         val r = router.dispatch(Intent(HomeTools.SET_BLINDS, mapOf("room" to "garage", "position" to "open")))
@@ -39,7 +40,7 @@ class ActionRouterTest {
     }
 
     @Test
-    fun `handler exceptions become failed results`() {
+    fun `handler exceptions become failed results`() = runTest {
         val router = ActionRouter().register("boom") { throw IllegalStateException("kaboom") }
         val r = router.dispatch(Intent("boom"))
         assertFalse(r.ok)

@@ -75,18 +75,30 @@ class VoicePipelineTest {
         val seen = mutableListOf<String>()
         val escalation = object : IntentEscalation {
             override suspend fun escalate(transcript: String, outcome: NluOutcome): EscalationResult {
-                seen += transcript; return EscalationResult.Handled("It is sunny.", "test-cloud")
+                seen += transcript; return EscalationResult.Handled("I cannot order food yet.", "test-cloud")
             }
         }
         val p = pipeline(escalation = escalation)
         val events = mutableListOf<PipelineEvent>()
         val collector = launch(UnconfinedTestDispatcher(testScheduler)) { p.events.collect { events += it } }
-        val run = p.runText("what is the weather like")
+        val run = p.runText("order a pizza for dinner")
         assertIs<NluOutcome.NoCall>(run.outcome)
-        assertEquals(listOf("what is the weather like"), seen)
+        assertEquals(listOf("order a pizza for dinner"), seen)
         assertIs<EscalationResult.Handled>(run.escalation)
         assertNotNull(events.filterIsInstance<PipelineEvent.Escalated>().singleOrNull())
         collector.cancel()
+    }
+
+    @Test
+    fun `weather resolves to the remote tool and fails softly without a companion`() = runTest {
+        val run = pipeline().runText("what is the weather like tomorrow")
+        val outcome = run.outcome
+        assertIs<NluOutcome.Call>(outcome)
+        assertEquals(HomeTools.GET_WEATHER, outcome.name)
+        assertEquals("tomorrow", outcome.args["when"])
+        // no remote handler is registered here: the call fails softly and lands on the escalation seam
+        assertEquals(false, run.action!!.ok)
+        assertIs<EscalationResult.NotHandled>(run.escalation)
     }
 
     @Test
