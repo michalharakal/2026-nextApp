@@ -1,9 +1,12 @@
 # HomeEvenSmarter
 
+[![HomeEvenSmarter — the companion demo of "From Dumb Client to Hybrid Intelligence"](docs/hero.png)](https://harakal.de/talks/from-dumb-client-to-hybrid-intelligence-nextapp-devcon-berlin-2026)
+
 A small smart-home app that listens. Say *"turn on the kitchen light"* and the light in the kitchen turns on —
 with **both models running on the phone**: Moonshine v2 streaming speech recognition and a FunctionGemma-270M
 language model that turns the sentence into a function call. The app is the companion demo of the talk
-*From Dumb Client to Hybrid Intelligence* (next.app devcon 2026, Berlin).
+[*From Dumb Client to Hybrid Intelligence: Building Production On-Device AI Systems*](https://harakal.de/talks/from-dumb-client-to-hybrid-intelligence-nextapp-devcon-berlin-2026)
+(next.app devcon 2026, Berlin).
 
 It exists to show one thing: how little app code an advanced on-device AI pipeline needs when the models are
 packaged as **cartridges** built from public **blueprints** with [SKaiNET](https://github.com/SKaiNET-developers/SKaiNET)
